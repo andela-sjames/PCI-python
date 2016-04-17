@@ -114,11 +114,11 @@ def top_matches(prefs, person, n=5, similarity=sim_pearson):
     return scores[0:n]
 
 
-# Gets recommendations for a person by using a weighted average
-# of every other user's rankings
 def get_recommendations(prefs, person, similarity=sim_pearson):
+    """Gets recommendations for a person by using a weighted average of every
+     other user's rankings."""
     totals = {}
-    simSums = {}
+    sim_sums = {}
     for other in prefs:
         # don't compare me to myself
         if other == person:
@@ -135,12 +135,25 @@ def get_recommendations(prefs, person, similarity=sim_pearson):
                 totals[item] += prefs[other][item] * sim
 
                 # Sum of similarities
-                simSums.setdefault(item, 0)
-                simSums[item] += sim
+                sim_sums.setdefault(item, 0)
+                sim_sums[item] += sim
 
             # Create the normalized list
-        rankings = [(total / simSums[item], item) for item, total in totals.items()]
+        rankings = [(total / sim_sums[item], item) for item, total in totals.items()]
         # Return the sorted list
         rankings.sort()
         rankings.reverse()
         return rankings
+
+
+def transform_prefs(prefs):
+    result = {}
+    for person in prefs:
+        for item in prefs[person]:
+            result.setdefault(item, {})
+            # Flip item and person
+            result[item][person] = prefs[person][item]
+    return result
+
+# import pprint
+# pprint.pprint(transform_prefs(critics))
