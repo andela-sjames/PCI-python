@@ -53,6 +53,7 @@ critics = {'Lisa Rose': {'Lady in the Water': 2.5,
            }
 
 
+# user based collaborative filtering...
 # Returns a distance-based similarity score for person1 and person2
 # euclidean distance
 def sim_distance(prefs, person1, person2):
@@ -157,3 +158,53 @@ def transform_prefs(prefs):
 
 # import pprint
 # pprint.pprint(transform_prefs(critics))
+# Item based filtering.
+
+
+def calculate_similar_items(prefs, n=10):
+    # Create a dictionary of items showing which other items they
+    # are most similar to.
+    result = {}
+    # Invert the preference matrix to be item-centric
+    item_prefs = transform_prefs(prefs)
+    c = 0
+    for item in item_prefs:
+        # Status updates for large datasets
+        c += 1
+        if c % 100 == 0:
+            print "%d / %d" % (c, len(item_prefs))
+            # Find the most similar items to this one
+        scores = top_matches(item_prefs, item, n=n, similarity=sim_pearson)
+        result[item] = scores
+    return result
+
+
+def get_recommended_items(prefs, item_match, user):
+    user_ratings = prefs[user]
+    scores = {}
+    total_sim = {}
+    # Loop over items rated by this user
+    for (item, rating) in user_ratings.items():
+        # Loop over items similar to this one
+        for (similarity, item2) in item_match[item]:
+            # Ignore if this user has already rated this item
+            if item2 in user_ratings:
+                continue
+            # Weighted sum of rating times similarity
+            scores.setdefault(item2, 0)
+            scores[item2] += similarity * rating
+            # Sum of all the similarities
+            total_sim.setdefault(item2, 0)
+            total_sim[item2] += similarity
+    # Divide each total score by total weighting to get an average
+    rankings = [(score / total_sim[item], item) for item, score in scores.items()]
+    # Return the rankings from highest to lowest
+    rankings.sort()
+    rankings.reverse()
+    return rankings
+
+
+# should be built first and stored somewhere.
+value = calculate_similar_items(critics)
+
+print get_recommended_items(critics, value, 'Toby')
