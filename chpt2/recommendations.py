@@ -101,15 +101,15 @@ def sim_pearson(prefs, p1, p2):
     sum2 = sum([prefs[p2][it] for it in si])
 
     # Sums of the squares
-    sum1Sq = sum([pow(prefs[p1][it], 2) for it in si])
-    sum2Sq = sum([pow(prefs[p2][it], 2) for it in si])
+    sum1_sq = sum([pow(prefs[p1][it], 2) for it in si])
+    sum2_sq = sum([pow(prefs[p2][it], 2) for it in si])
 
     # Sum of the products
-    pSum = sum([prefs[p1][it] * prefs[p2][it] for it in si])
+    p_sum = sum([prefs[p1][it] * prefs[p2][it] for it in si])
 
     # Calculate r (Pearson score)
-    num = pSum - (sum1 * sum2 / n)
-    den = sqrt((sum1Sq - pow(sum1, 2) / n) * (sum2Sq - pow(sum2, 2) / n))
+    num = p_sum - (sum1 * sum2 / n)
+    den = sqrt((sum1_sq - pow(sum1, 2) / n) * (sum2_sq - pow(sum2, 2) / n))
     if den == 0:
         return 0
 
@@ -120,18 +120,19 @@ def sim_pearson(prefs, p1, p2):
 
 # Returns the best matches for person from the prefs dictionary.
 # Number of results and similarity function are optional params.
-def topMatches(prefs, person, n=5, similarity=sim_pearson):
+def top_matches(prefs, person, n=5, similarity=sim_pearson):
     scores = [(similarity(prefs, person, other), other)
               for other in prefs if other != person]
     scores.sort()
     scores.reverse()
     return scores[0:n]
 
+
 # Gets recommendations for a person by using a weighted average
 # of every other user's rankings
-def getRecommendations(prefs,person,similarity=sim_pearson):
+def get_recommendations(prefs,person,similarity=sim_pearson):
     totals = {}
-    simSums = {}
+    sim_sums = {}
     for other in prefs:
         # don't compare me to myself
         if other == person:
@@ -149,18 +150,19 @@ def getRecommendations(prefs,person,similarity=sim_pearson):
                 totals.setdefault(item, 0)
                 totals[item] += prefs[other][item] * sim
         # Sum of similarities
-        simSums.setdefault(item, 0)
-        simSums[item] += sim
+        sim_sums.setdefault(item, 0)
+        sim_sums[item] += sim
 
     # Create the normalized list
-    rankings = [(total / simSums[item], item) for item, total in totals.items()]
+    rankings = [(total / sim_sums[item], item) for item, total in totals.items()]
 
     # Return the sorted list
     rankings.sort()
     rankings.reverse()
     return rankings
 
-def transformPrefs(prefs):
+
+def transform_prefs(prefs):
     result = {}
     for person in prefs:
         for item in prefs[person]:
@@ -176,25 +178,25 @@ def transformPrefs(prefs):
 # Item based filtering.
 
 
-def calculateSimilarItems(prefs,n=10):
+def calculate_similarItems(prefs,n=10):
     # Create a dictionary of items showing which other items they
     # are most similar to.
     result = {}
     # Invert the preference matrix to be item-centric
-    itemPrefs = transformPrefs(prefs)
+    item_prefs = transform_prefs(prefs)
     c = 0
-    for item in itemPrefs:
+    for item in item_prefs:
         # Status updates for large datasets
         c += 1
         if c % 100 == 0:
-            print "%d / %d" % (c, len(itemPrefs))
+            print "%d / %d" % (c, len(item_prefs))
             # Find the most similar items to this one
-        scores = topMatches(itemPrefs, item, n=n, similarity=sim_distance)
+        scores = top_matches(item_prefs, item, n=n, similarity=sim_distance)
         result[item] = scores
     return result
 
 
-def getRecommendedItems(prefs, item_match, user):
+def get_recommended_items(prefs, item_match, user):
     user_ratings = prefs[user]
     scores = {}
     total_sim = {}
@@ -220,6 +222,6 @@ def getRecommendedItems(prefs, item_match, user):
 
 
 # should be built first and stored somewhere.
-value = calculateSimilarItems(critics)
+value = calculate_similarItems(critics)
 
-print getRecommendedItems(critics, value, 'Toby')
+print get_recommended_items(critics, value, 'Toby')
