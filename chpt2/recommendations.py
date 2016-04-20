@@ -1,3 +1,5 @@
+
+import os
 from math import sqrt
 # A dictionary of movie critics and their ratings of a small
 # set of movies
@@ -222,6 +224,19 @@ def get_recommended_items(prefs, item_match, user):
 
 
 # should be built first and stored somewhere.
-value = calculate_similarItems(critics)
+# value = calculate_similarItems(critics)
+# print get_recommended_items(critics, value, 'Toby')
+def load_movie_lens(path=os.getcwd()):
+    # Get movie titles
+    movies = {}
+    for line in open(path + '/u.item'):
+        (id, title) = line.split('|')[0:2]
+        movies[id] = title
 
-print get_recommended_items(critics, value, 'Toby')
+    # Load data
+    prefs = {}
+    for line in open(path + '/u.data'):
+        (user, movieid, rating, ts) = line.split('\t')
+        prefs.setdefault(user, {})
+        prefs[user][movies[movieid]] = float(rating)
+    return prefs
