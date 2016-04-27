@@ -18,3 +18,15 @@ def getwordcounts(url):
       wc.setdefault(word,0)
       wc[word]+=1
   return d.feed.title,wc
+
+
+def getwords(html):
+  # Remove all the HTML tags
+  txt=re.compile(r'<[^>]+>').sub('',html)
+
+  # Split words by all non-alpha characters
+  words=re.compile(r'[^A-Z^a-z]+').split(txt)
+
+  # Convert to lowercase
+  return [word.lower() for word in words if word!='']
+
