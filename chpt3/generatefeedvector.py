@@ -54,3 +54,19 @@ for w, bc in apcount.items():
     frac = float(bc) / len(feedlist)
     if frac > 0.1 and frac < 0.5:
         wordlist.append(w)
+
+
+out = file('blogdata1.txt','w')
+out.write('Blog')
+for word in wordlist:
+    out.write('\t%s' % word)
+out.write('\n')
+for blog, wc in wordcounts.items():
+    print blog
+    out.write(blog)
+    for word in wordlist:
+        if word in wc:
+            out.write('\t%d' % wc[word])
+    else:
+        out.write('\t0')
+    out.write('\n')
