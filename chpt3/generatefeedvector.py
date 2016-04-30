@@ -56,7 +56,7 @@ for w, bc in apcount.items():
         wordlist.append(w)
 
 
-out = file('blogdata1.txt','w')
+out = file('blogdata1.txt', 'w')
 out.write('Blog')
 for word in wordlist:
     out.write('\t%s' % word)
